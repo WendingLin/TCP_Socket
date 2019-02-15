@@ -47,6 +47,14 @@ void checkIfBind(int status, const char *hostname, const char *port) {
   } // if
 }
 
+void checkIfConnect(int status, const char *hostname, const char *port) {
+  if (status == -1) {
+    cerr << "Error: cannot connect to socket" << endl;
+    cerr << "  (" << hostname << "," << port << ")" << endl;
+    exit(EXIT_FAILURE);
+  } // if
+}
+
 void checkIfListen(int status, const char *hostname, const char *port) {
   if (status == -1) {
     cerr << "Error: cannot listen on socket" << endl;
@@ -59,7 +67,6 @@ void checkCreateClientSocket(int socket_fd) {
   if (socket_fd == -1) {
     printf("Oh dear, something went wrong with read()! %s\n", strerror(errno));
     cerr << "Error: cannot accept connection on socket" << endl;
-
     exit(EXIT_FAILURE);
   } // if
 }

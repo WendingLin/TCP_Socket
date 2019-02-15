@@ -7,7 +7,9 @@ vector<Player> players;
 int main(int argc, char *argv[]) {
   int status;
   int socket_fd;
-  int player_num = 3;
+  fd_set read_fds;
+  int ret;
+  int player_num = 2;
   struct addrinfo host_info;
   struct addrinfo *host_info_list;
   const char *hostname = NULL;
@@ -56,7 +58,18 @@ int main(int argc, char *argv[]) {
     cout << "Server received: " << buffer << endl;
   }
 
+  while (1) {
+    int max_fd = 0;
+    FD_ZERO(&read_fds);
+    FD_SET(socket_fd, &read_fds);
+    int client_fd = players[0].client_fd;
+    const char *message = "Start Game!";
+    send(client_fd, message, strlen(message), 0);
+    sleep(3);
+  }
+
   freeaddrinfo(host_info_list);
   close(socket_fd);
+  cout << "Player numbers: " << players.size() << endl;
   return 0;
 }
