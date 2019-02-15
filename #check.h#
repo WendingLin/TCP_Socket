@@ -59,7 +59,6 @@ void checkCreateClientSocket(int socket_fd) {
   if (socket_fd == -1) {
     printf("Oh dear, something went wrong with read()! %s\n", strerror(errno));
     cerr << "Error: cannot accept connection on socket" << endl;
-
     exit(EXIT_FAILURE);
   } // if
 }
