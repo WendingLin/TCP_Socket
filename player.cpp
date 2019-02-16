@@ -25,20 +25,22 @@ int main(int argc, char *argv[]) {
   socket_fd = socket(host_info_list->ai_family, host_info_list->ai_socktype,
                      host_info_list->ai_protocol);
   checkCreateServerSocket(socket_fd, hostname, port);
-
   cout << "Connecting to " << hostname << " on port " << port << "..." << endl;
-
   status =
       connect(socket_fd, host_info_list->ai_addr, host_info_list->ai_addrlen);
   checkIfConnect(status, hostname, port);
 
   const char *message = "hi there!";
   send(socket_fd, message, strlen(message), 0);
+  sleep(2);
   while (1) {
-    char buffer[512];
-    recv(socket_fd, buffer, 512, 0);
-
-    cout << "Received: " << string(buffer) << endl;
+    cout << "Try to send msg" << endl;
+    const char *message = "TEST_SELECT";
+    send(socket_fd, message, strlen(message), 0);
+    sleep(7);
+    // char buffer[512];
+    // recv(socket_fd, buffer, 512, 0);
+    // cout << "Received: " << string(buffer) << endl;
   }
   freeaddrinfo(host_info_list);
   close(socket_fd);

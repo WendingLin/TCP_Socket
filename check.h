@@ -63,6 +63,23 @@ void checkIfListen(int status, const char *hostname, const char *port) {
   } // if
 }
 
+void checkIfSelect(int ret) {
+  if (ret == -1) {
+    cerr << "Error: cannot select on socket" << endl;
+    exit(EXIT_FAILURE);
+  } // if
+}
+
+void checkReceive(int status) {
+  if (status == -1) {
+    cerr << "Error: cannot receive data" << endl;
+    exit(EXIT_FAILURE);
+  } else if (status == 0) {
+    cerr << "Error: Client has been closed" << endl;
+    exit(EXIT_FAILURE);
+  }
+}
+
 void checkCreateClientSocket(int socket_fd) {
   if (socket_fd == -1) {
     printf("Oh dear, something went wrong with read()! %s\n", strerror(errno));
