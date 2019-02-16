@@ -158,7 +158,7 @@ int main(int argc, char *argv[]) {
       } else if (header == "POTATO") {
         int hops = atoi(getHops(recvdata).c_str());
         cout << "Player <" << player_id << "> get the potato" << endl;
-        cout << "Hops Received" << hops << endl;
+        cout << "Hops Received: " << hops << endl;
         hops--;
         string order = getOrder(recvdata);
         const char *message;
