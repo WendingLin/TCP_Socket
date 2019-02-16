@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <iostream>
 #include <netdb.h>
+#include <sstream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -87,6 +88,12 @@ void checkCreateClientSocket(int socket_fd) {
     exit(EXIT_FAILURE);
   } // if
 }
+void checkCreateSucess(int player_num, size_t players) {
+  if ((size_t)player_num != players) {
+    cerr << "Error: Not receive every players' information" << endl;
+    exit(EXIT_FAILURE);
+  } // if
+}
 
 string getClientIP(struct sockaddr_storage socket_addr) {
   struct sockaddr_in *temp = (struct sockaddr_in *)&socket_addr;
@@ -109,4 +116,15 @@ int createPlayer(vector<Player> &players, int client_fd, string ip, int port) {
   players[seq].client_fd = client_fd;
   players[seq].ip = ip;
   return seq;
+}
+
+string getHeader(string recvdata) {
+  size_t pos = recvdata.find_first_of(':');
+  return recvdata.substr(0, pos);
+}
+
+void splitPotato(string recvdata) {
+  size_t pos = recvdata.find_first_of(':');
+  string data = recvdata.substr(pos + 1);
+  cout << data << endl;
 }
