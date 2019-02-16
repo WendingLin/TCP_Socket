@@ -128,3 +128,16 @@ void splitPotato(string recvdata) {
   string data = recvdata.substr(pos + 1);
   cout << data << endl;
 }
+
+string getPlayerID(string recvdata) {
+  size_t pos_m = recvdata.find_first_of(':');
+  size_t pos_c = recvdata.find_first_of(',');
+  string id = recvdata.substr(pos_m + 1, pos_c - pos_m - 1);
+  return id;
+}
+
+string getPlayerNum(string recvdata) {
+  size_t pos_c = recvdata.find_first_of(',');
+  string num = recvdata.substr(pos_c + 1);
+  return num;
+}

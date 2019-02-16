@@ -11,7 +11,6 @@ int main(int argc, char *argv[]) {
   vector<Player> players;
   int ret;
   int player_num = 3;
-  int ready = 0;
   struct addrinfo host_info;
   struct addrinfo *host_info_list;
   const char *hostname = NULL;
@@ -58,7 +57,8 @@ int main(int argc, char *argv[]) {
     cout << "> SEND PLAYERS INFO" << endl;
     stringstream player_info;
     player_info << "PLAYER:";
-    player_info << i + ", ";
+    player_info << i;
+    player_info << ",";
     player_info << player_num;
     const char *message = player_info.str().c_str();
     send(client_fd, message, strlen(message), 0);
@@ -66,12 +66,6 @@ int main(int argc, char *argv[]) {
   }
 
   checkCreateSucess(player_num, players.size());
-
-  cout << "-------------CONNECT PLAYERS----------------" << endl;
-  for (int i = 0; i < player_num; i++) {
-    const char *message = "CONNECT:";
-    send(players[i].client_fd, message, strlen(message), 0);
-  }
 
   while (1) {
     FD_ZERO(&rfds);
@@ -99,13 +93,16 @@ int main(int argc, char *argv[]) {
       int status = recv(client_fd, buf, BUF_SIZE, 0);
       checkReceive(status);
       string header = getHeader(string(buf));
-      if (header == "READY") {
-        if (ready == player_num - 1) {
-          cout << "-------------GAME START----------------" << endl;
-        } else {
-          ready++;
-          cout << "> PLAYER READY NUM: " << ready << endl;
+      if (header == "READY_SERVER") {
+        cout << "Receive: " << buf << endl;
+        cout << "> Final Player Opens the server: " << endl;
+        cout << "-------------CONNECT PLAYERS----------------" << endl;
+        for (int i = 0; i < player_num; i++) {
+          const char *message = "CONNECT:";
+          send(players[i].client_fd, message, strlen(message), 0);
         }
+        cout << "-------------GAME START----------------" << endl;
+
       } else if (header == "POTATO") {
         cout << "-------------GAME ENDS----------------" << endl;
         cout << "Trace of potato:" << endl;
