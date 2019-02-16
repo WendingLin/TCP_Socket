@@ -121,8 +121,10 @@ int main(int argc, char *argv[]) {
         status = listen(server_fd, 1);
         checkIfListen(status, server_hostname, server_port);
         cout << "-------------OPEN SERVER SUCCESS----------------" << endl;
-        const char *message = "READY_SERVER:";
-        send(ring_fd, message, strlen(message), 0);
+        if (player_id + 1 == player_num) {
+          const char *message = "READY_SERVER:";
+          send(ring_fd, message, strlen(message), 0);
+        }
       } else if (header == "CONNECT") {
         cout << "-------------CONNECT NEIGHBOUR----------------" << endl;
         /* Player-Player as Client */
@@ -149,6 +151,10 @@ int main(int argc, char *argv[]) {
         checkIfConnect(status, neigh_hostname, neigh_port);
         cout << "-------------CONNECT NEIGHBOUR SUCCESS----------------"
              << endl;
+        if (player_id + 1 == player_num) {
+          const char *message = "READY_NEIGHBOUR:";
+          send(ring_fd, message, strlen(message), 0);
+        }
       } else if (header == "CLOSE") {
         cout << "-------------GAME ENDS----------------" << endl;
         cout << "-------------DISCONNECT----------------" << endl;

@@ -101,8 +101,9 @@ int main(int argc, char *argv[]) {
           const char *message = "CONNECT:";
           send(players[i].client_fd, message, strlen(message), 0);
         }
-        cout << "-------------GAME START----------------" << endl;
 
+      } else if (header == "READY_NEIGHBOUR") {
+        cout << "-------------GAME START----------------" << endl;
       } else if (header == "POTATO") {
         cout << "-------------GAME ENDS----------------" << endl;
         cout << "Trace of potato:" << endl;
