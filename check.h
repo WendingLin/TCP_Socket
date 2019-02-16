@@ -123,12 +123,6 @@ string getHeader(string recvdata) {
   return recvdata.substr(0, pos);
 }
 
-void splitPotato(string recvdata) {
-  size_t pos = recvdata.find_first_of(':');
-  string data = recvdata.substr(pos + 1);
-  cout << data << endl;
-}
-
 string getPlayerID(string recvdata) {
   size_t pos_m = recvdata.find_first_of(':');
   size_t pos_c = recvdata.find_first_of(',');
@@ -140,4 +134,52 @@ string getPlayerNum(string recvdata) {
   size_t pos_c = recvdata.find_first_of(',');
   string num = recvdata.substr(pos_c + 1);
   return num;
+}
+string getHops(string recvdata) {
+  size_t pos_m = recvdata.find_first_of(':');
+  size_t pos_u = recvdata.find_first_of('_');
+  string hops = recvdata.substr(pos_m + 1, pos_u - pos_m - 1);
+  return hops;
+}
+
+string getOrder(string recvdata) {
+  size_t pos_u = recvdata.find_first_of('_');
+  if (pos_u + 1 == recvdata.size())
+    return "";
+  else {
+    string order = recvdata.substr(pos_u + 1);
+    return order;
+  }
+}
+
+string buildPotato(int hops) {
+  stringstream ss;
+  ss << "POTATO:";
+  ss << hops;
+  ss << "_";
+  return ss.str();
+}
+
+string rebuildPotato(string order, int player_id) {
+  stringstream ss;
+  ss << "POTATO:";
+  ss << order;
+  ss << player_id;
+  return ss.str();
+}
+
+string rebuildPotato(int hops, string order, int player_id) {
+  stringstream ss;
+  ss << "POTATO:";
+  ss << hops;
+  ss << "_";
+  ss << order;
+  ss << player_id;
+  ss << ",";
+  return ss.str();
+}
+void splitPotato(string recvdata) {
+  size_t pos = recvdata.find_first_of(':');
+  string data = recvdata.substr(pos + 1);
+  cout << data << endl;
 }

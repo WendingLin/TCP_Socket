@@ -11,6 +11,7 @@ int main(int argc, char *argv[]) {
   vector<Player> players;
   int ret;
   int player_num = 3;
+  int hops = 6;
   struct addrinfo host_info;
   struct addrinfo *host_info_list;
   const char *hostname = NULL;
@@ -104,6 +105,11 @@ int main(int argc, char *argv[]) {
 
       } else if (header == "READY_NEIGHBOUR") {
         cout << "-------------GAME START----------------" << endl;
+        srand((unsigned int)time(NULL) + player_num);
+        int random = rand() % player_num;
+
+        const char *message = buildPotato(hops).c_str();
+        send(players[random].client_fd, message, strlen(message), 0);
       } else if (header == "POTATO") {
         cout << "-------------GAME ENDS----------------" << endl;
         cout << "Trace of potato:" << endl;
