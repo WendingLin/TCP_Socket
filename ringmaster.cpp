@@ -12,6 +12,7 @@ int main(int argc, char *argv[]) {
   int ret;
   int player_num = 3;
   int hops = 6;
+  int count_ready = 0;
   struct addrinfo host_info;
   struct addrinfo *host_info_list;
   const char *hostname = NULL;
@@ -98,18 +99,26 @@ int main(int argc, char *argv[]) {
         cout << "Receive: " << buf << endl;
         cout << "> Final Player Opens the server: " << endl;
         cout << "-------------CONNECT PLAYERS----------------" << endl;
-        for (int i = 0; i < player_num; i++) {
-          const char *message = "CONNECT:";
-          send(players[i].client_fd, message, strlen(message), 0);
-        }
+
+        const char *message = "CONNECT:";
+        send(players[0].client_fd, message, strlen(message), 0);
 
       } else if (header == "READY_NEIGHBOUR") {
-        cout << "-------------GAME START----------------" << endl;
-        srand((unsigned int)time(NULL) + player_num);
-        int random = rand() % player_num;
 
-        const char *message = buildPotato(hops).c_str();
-        send(players[random].client_fd, message, strlen(message), 0);
+        cout << "Player " << count_ready << " Ready" << endl;
+        count_ready++;
+        if (count_ready != player_num) {
+          const char *message = "CONNECT:";
+          send(players[count_ready].client_fd, message, strlen(message), 0);
+        } else {
+          cout << "-------------GAME START----------------" << endl;
+          srand((unsigned int)time(NULL) + player_num);
+          int random = rand() % player_num;
+
+          const char *message = buildPotato(hops).c_str();
+          send(players[random].client_fd, message, strlen(message), 0);
+        }
+
       } else if (header == "POTATO") {
         cout << "-------------GAME ENDS----------------" << endl;
         cout << "Trace of potato:" << endl;
