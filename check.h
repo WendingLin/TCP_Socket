@@ -169,6 +169,8 @@ string rebuildPotato(string order, int player_id) {
 }
 
 string rebuildPotato(int hops, string order, int player_id) {
+  cout << "Inside REBUILD: hops " << hops << "order " << order << "player_id "
+       << player_id << endl;
   stringstream ss;
   ss << "POTATO:";
   ss << hops;
