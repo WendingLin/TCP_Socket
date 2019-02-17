@@ -171,10 +171,12 @@ int main(int argc, char *argv[]) {
         string order = getOrder(recvdata);
 
         if (hops == 0) {
-          const char *message = rebuildPotato(order, player_id).c_str();
+          string msgstring = rebuildPotato(order, player_id);
+          const char *message = msgstring.c_str();
           send(ring_fd, message, strlen(message), 0);
         } else {
-          const char *message = rebuildPotato(hops, order, player_id).c_str();
+          string msgstring = rebuildPotato(hops, order, player_id);
+          const char *message = msgstring.c_str();
           cout << recvdata << endl;
           cout << message << endl;
           send(neigh_fd, message, strlen(message), 0);
@@ -185,15 +187,16 @@ int main(int argc, char *argv[]) {
       } else if (header == "CLOSE") {
         cout << "-------------GAME ENDS----------------" << endl;
         cout << "-------------DISCONNECT----------------" << endl;
+        close(client_fd);
         cout << "-------------CLOSE SERVER----------------" << endl;
       }
-
     }
 
     else if (FD_ISSET(neigh_fd, &rfds)) {
       char buf[BUF_SIZE];
       memset(buf, 0, BUF_SIZE);
-      int status = recv(ring_fd, buf, BUF_SIZE, 0);
+      cout << "Inside NEIGH recv" << endl;
+      int status = recv(neigh_fd, buf, BUF_SIZE, 0);
       checkReceive(status);
       string recvdata = string(buf);
       cout << "Neigh Receive: " << recvdata << endl;
@@ -206,12 +209,14 @@ int main(int argc, char *argv[]) {
         string order = getOrder(recvdata);
         const char *message;
         if (hops == 0) {
-          message = rebuildPotato(order, player_id).c_str();
+          string msgstring = rebuildPotato(order, player_id);
+          message = msgstring.c_str();
           send(ring_fd, message, strlen(message), 0);
         } else {
-          message = rebuildPotato(hops, order, player_id).c_str();
+          string msgstring = rebuildPotato(hops, order, player_id);
+          message = msgstring.c_str();
           cout << message << endl;
-          send(neigh_fd, message, strlen(message), 0);
+          send(client_fd, message, strlen(message), 0);
         }
       }
     } else if (FD_ISSET(client_fd, &rfds)) {
@@ -229,15 +234,16 @@ int main(int argc, char *argv[]) {
         hops--;
         string order = getOrder(recvdata);
 
-        sleep(2);
         if (hops == 0) {
-          const char *msg = rebuildPotato(order, player_id).c_str();
+          string msgstring = rebuildPotato(order, player_id).c_str();
+          const char *msg = msgstring.c_str();
           send(ring_fd, msg, strlen(msg), 0);
         } else {
           string msgstring = rebuildPotato(hops, order, player_id);
+          const char *message = msgstring.c_str();
           cout << recvdata << endl;
-          cout << msgstring << endl;
-          send(neigh_fd, msgstring.c_str(), strlen(msgstring.c_str()), 0);
+          cout << message << endl;
+          send(client_fd, message, strlen(message), 0);
         }
         cout << "Send Success when hops = " << (hops + 1) << endl;
         cout << endl << endl << endl;
@@ -257,6 +263,9 @@ int main(int argc, char *argv[]) {
       cout << " FD: " << client_fd << " IP: " << client_ip
            << " Port: " << client_port << endl;
 
+      // const char *msg = "HELLO！！";
+      // send(client_fd, msg, strlen(msg), 0);
+      cout << "After first send" << endl;
       const char *message = "READY_NEIGHBOUR:";
       send(ring_fd, message, strlen(message), 0);
 

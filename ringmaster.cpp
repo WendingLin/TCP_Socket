@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
   fd_set rfds;
   vector<Player> players;
   int ret;
-  int player_num = 3;
+  int player_num = 4;
   int hops = 6;
   int count_ready = 0;
   struct addrinfo host_info;
