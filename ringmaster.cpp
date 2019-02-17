@@ -123,8 +123,7 @@ int main(int argc, char *argv[]) {
       // cout << "Receive Data from :" << client_fd << endl;
       // cout << "Receive: " << buf << endl;
     }
-    // const char *message = "Start Game!";
-    // send(client_fd, message, strlen(message), 0);
+
     // sleep(3);
   }
 
