@@ -2,7 +2,7 @@
 
 using namespace std;
 
-#define BUF_SIZE 512
+#define BUF_SIZE 4096
 
 int main(int argc, char *argv[]) {
   int status;
@@ -189,8 +189,10 @@ int main(int argc, char *argv[]) {
       } else if (header == "CLOSE") {
         cout << "-------------GAME ENDS----------------" << endl;
         cout << "-------------DISCONNECT----------------" << endl;
-        close(client_fd);
+        freeaddrinfo(neigh_host_info_list);
+        close(neigh_fd);
         cout << "-------------CLOSE SERVER----------------" << endl;
+        break;
       }
     }
 
@@ -284,6 +286,9 @@ int main(int argc, char *argv[]) {
     // recv(socket_fd, buffer, 512, 0);
     // cout << "Received: " << string(buffer) << endl;
   }
+
+  freeaddrinfo(server_host_info_list);
+  close(server_fd);
   freeaddrinfo(ring_host_info_list);
   close(ring_fd);
 
