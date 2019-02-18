@@ -16,6 +16,10 @@ int main(int argc, char *argv[]) {
   int player_num;
   int basic_port = 23334;
 
+  struct timespec time1 = {0, 0};
+  clock_gettime(CLOCK_REALTIME, &time1);
+  srand(time1.tv_nsec);
+
   /* Player-Ringmaster as Client */
   struct addrinfo ring_host_info;
   struct addrinfo *ring_host_info_list;
@@ -174,6 +178,7 @@ int main(int argc, char *argv[]) {
 
         if (hops == 0) {
           string msgstring = rebuildPotato(order, player_id);
+          cout << "I'm it" << endl;
           const char *message = msgstring.c_str();
           send(ring_fd, message, strlen(message), 0);
         } else {
@@ -181,7 +186,12 @@ int main(int argc, char *argv[]) {
           const char *message = msgstring.c_str();
           cout << recvdata << endl;
           cout << message << endl;
-          send(neigh_fd, message, strlen(message), 0);
+
+          int random = rand() % 2;
+          if (random == 1)
+            send(neigh_fd, message, strlen(message), 0);
+          else
+            send(client_fd, message, strlen(message), 0);
         }
         cout << "Send Success when hops = " << (hops + 1) << endl;
         cout << endl << endl << endl;
@@ -189,7 +199,6 @@ int main(int argc, char *argv[]) {
       } else if (header == "CLOSE") {
         cout << "-------------GAME ENDS----------------" << endl;
         cout << "-------------DISCONNECT----------------" << endl;
-
         cout << "-------------CLOSE SERVER----------------" << endl;
         break;
       }
@@ -198,7 +207,7 @@ int main(int argc, char *argv[]) {
     else if (FD_ISSET(neigh_fd, &rfds)) {
       char buf[BUF_SIZE];
       memset(buf, 0, BUF_SIZE);
-      cout << "Inside NEIGH recv" << endl;
+      // cout << "Inside NEIGH recv" << endl;
       int status = recv(neigh_fd, buf, BUF_SIZE, 0);
       checkReceive(status);
       string recvdata = string(buf);
@@ -213,13 +222,19 @@ int main(int argc, char *argv[]) {
         const char *message;
         if (hops == 0) {
           string msgstring = rebuildPotato(order, player_id);
+          cout << "I'm it" << endl;
           message = msgstring.c_str();
           send(ring_fd, message, strlen(message), 0);
         } else {
           string msgstring = rebuildPotato(hops, order, player_id);
           message = msgstring.c_str();
           cout << message << endl;
-          send(client_fd, message, strlen(message), 0);
+
+          int random = rand() % 2;
+          if (random == 1)
+            send(neigh_fd, message, strlen(message), 0);
+          else
+            send(client_fd, message, strlen(message), 0);
         }
       }
     } else if (FD_ISSET(client_fd, &rfds)) {
@@ -239,6 +254,7 @@ int main(int argc, char *argv[]) {
 
         if (hops == 0) {
           string msgstring = rebuildPotato(order, player_id).c_str();
+          cout << "I'm it" << endl;
           const char *msg = msgstring.c_str();
           send(ring_fd, msg, strlen(msg), 0);
         } else {
@@ -246,7 +262,12 @@ int main(int argc, char *argv[]) {
           const char *message = msgstring.c_str();
           cout << recvdata << endl;
           cout << message << endl;
-          send(client_fd, message, strlen(message), 0);
+
+          int random = rand() % 2;
+          if (random == 1)
+            send(neigh_fd, message, strlen(message), 0);
+          else
+            send(client_fd, message, strlen(message), 0);
         }
         cout << "Send Success when hops = " << (hops + 1) << endl;
         cout << endl << endl << endl;
