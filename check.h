@@ -130,6 +130,17 @@ string getPlayerID(string recvdata) {
   return id;
 }
 
+string buildConnect(const Player &player) {
+  string connect = "CONNECT:";
+  connect.append(player.ip);
+  return connect;
+}
+
+string getConnectIP(string recvdata) {
+  size_t pos_m = recvdata.find_first_of(':');
+  return recvdata.substr(pos_m + 1);
+}
+
 string getPlayerNum(string recvdata) {
   size_t pos_c = recvdata.find_first_of(',');
   string num = recvdata.substr(pos_c + 1);
