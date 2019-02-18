@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
 
   status = listen(server_fd, 100);
   checkIfListen(status, hostname, port);
-
+  //
   cout << "-------------CREATE PLAYERS----------------" << endl;
   /* CREATE PLAYER & SEND INFO TO PLAYER */
   for (int i = 0; i < player_num; i++) {
