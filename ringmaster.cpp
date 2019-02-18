@@ -2,7 +2,7 @@
 
 using namespace std;
 
-#define BUF_SIZE 512
+#define BUF_SIZE 4096
 
 int main(int argc, char *argv[]) {
   int status;
@@ -141,6 +141,7 @@ int main(int argc, char *argv[]) {
     // sleep(3);
   }
 
+  sleep(1);
   freeaddrinfo(host_info_list);
   cout << "-------------CLOSE SERVER SOCKET----------------" << endl;
   close(server_fd);
