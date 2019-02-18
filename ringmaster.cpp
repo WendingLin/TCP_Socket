@@ -10,13 +10,13 @@ int main(int argc, char *argv[]) {
   fd_set rfds;
   vector<Player> players;
   int ret;
-  int player_num = 4;
-  int hops = 6;
+  int player_num = atoi(argv[2]);
+  int hops = atoi(argv[3]);
   int count_ready = 0;
   struct addrinfo host_info;
   struct addrinfo *host_info_list;
   const char *hostname = NULL;
-  const char *port = "23333";
+  const char *port = argv[1];
 
   memset(&host_info, 0, sizeof(host_info));
 
@@ -100,7 +100,8 @@ int main(int argc, char *argv[]) {
         cout << "> Final Player Opens the server: " << endl;
         cout << "-------------CONNECT PLAYERS----------------" << endl;
 
-        const char *message = "CONNECT:";
+        string connect_message = buildConnect(players[1]);
+        const char *message = connect_message.c_str();
         send(players[0].client_fd, message, strlen(message), 0);
 
       } else if (header == "READY_NEIGHBOUR") {
@@ -108,7 +109,11 @@ int main(int argc, char *argv[]) {
         cout << "Player " << count_ready << " Ready" << endl;
         count_ready++;
         if (count_ready != player_num) {
-          const char *message = "CONNECT:";
+
+          string connect_message =
+              buildConnect(players[(count_ready + 1) % player_num]);
+          const char *message = connect_message.c_str();
+
           send(players[count_ready].client_fd, message, strlen(message), 0);
         } else {
           cout << "-------------GAME START----------------" << endl;

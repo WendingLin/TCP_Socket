@@ -54,13 +54,13 @@ int main(int argc, char *argv[]) {
   /* Player-Player as Server */
   struct addrinfo server_host_info;
   struct addrinfo *server_host_info_list;
-  const char *server_hostname = argv[1];
+  const char *server_hostname = NULL;
   int real_port;
 
   /* Player-Player as Client*/
   struct addrinfo neigh_host_info;
   struct addrinfo *neigh_host_info_list;
-  const char *neigh_hostname = argv[1];
+  const char *neigh_hostname;
   const char *neigh_port;
 
   while (1) {
@@ -137,6 +137,8 @@ int main(int argc, char *argv[]) {
         int cal_neigh_port = basic_port + (player_id + 1) % player_num;
         stringstream ss;
         ss << cal_neigh_port;
+        string temphost = getConnectIP(recvdata);
+        neigh_hostname = temphost.c_str();
         neigh_port = ss.str().c_str();
 
         memset(&neigh_host_info, 0, sizeof(neigh_host_info));
