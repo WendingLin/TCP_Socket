@@ -189,8 +189,7 @@ int main(int argc, char *argv[]) {
       } else if (header == "CLOSE") {
         cout << "-------------GAME ENDS----------------" << endl;
         cout << "-------------DISCONNECT----------------" << endl;
-        freeaddrinfo(neigh_host_info_list);
-        close(neigh_fd);
+
         cout << "-------------CLOSE SERVER----------------" << endl;
         break;
       }
@@ -287,6 +286,8 @@ int main(int argc, char *argv[]) {
     // cout << "Received: " << string(buffer) << endl;
   }
 
+  freeaddrinfo(neigh_host_info_list);
+  close(neigh_fd);
   freeaddrinfo(server_host_info_list);
   close(server_fd);
   freeaddrinfo(ring_host_info_list);
