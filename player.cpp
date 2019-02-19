@@ -173,12 +173,12 @@ int main(int argc, char *argv[]) {
 
       } else if (header == "POTATO") {
         int hops = atoi(getHops(recvdata).c_str());
-        if (hops == 0) {
+        /*if (hops == 0) {
           const char *message = "POTATO:";
           send(ring_fd, message, strlen(message), 0);
           continue;
-        }
-        cout << "Player <" << player_id << "> get the potato" << endl;
+          }*/
+        // cout << "Player <" << player_id << "> get the potato" << endl;
         // cout << "Hops Received: " << hops << endl;
         hops--;
         string order = getOrder(recvdata);
@@ -196,13 +196,15 @@ int main(int argc, char *argv[]) {
 
           int random = rand() % 2;
           if (random == 1) {
-            send(neigh_fd, message, strlen(message), 0);
+
             cout << "Sending potato to " << ((player_id + 1) % player_num)
                  << endl;
+            send(neigh_fd, message, strlen(message), 0);
           } else {
-            send(client_fd, message, strlen(message), 0);
+
             cout << "Sending potato to "
                  << ((player_id + player_num - 1) % player_num) << endl;
+            send(client_fd, message, strlen(message), 0);
           }
         }
         // cout << "Send Success when hops = " << (hops + 1) << endl;
@@ -229,7 +231,7 @@ int main(int argc, char *argv[]) {
       string header = getHeader(recvdata);
       if (header == "POTATO") {
         int hops = atoi(getHops(recvdata).c_str());
-        cout << "Player <" << player_id << "> get the potato" << endl;
+        // cout << "Player <" << player_id << "> get the potato" << endl;
         // cout << "Hops Received: " << hops << endl;
         hops--;
         string order = getOrder(recvdata);
@@ -245,13 +247,15 @@ int main(int argc, char *argv[]) {
 
           int random = rand() % 2;
           if (random == 1) {
-            send(neigh_fd, message, strlen(message), 0);
+
             cout << "Sending potato to " << ((player_id + 1) % player_num)
                  << endl;
+            send(neigh_fd, message, strlen(message), 0);
           } else {
-            send(client_fd, message, strlen(message), 0);
+
             cout << "Sending potato to "
                  << ((player_id + player_num - 1) % player_num) << endl;
+            send(client_fd, message, strlen(message), 0);
           }
         }
       }
@@ -267,7 +271,7 @@ int main(int argc, char *argv[]) {
       string header = getHeader(recvdata);
       if (header == "POTATO") {
         int hops = atoi(getHops(recvdata).c_str());
-        cout << "Player <" << player_id << "> get the potato" << endl;
+        // cout << "Player <" << player_id << "> get the potato" << endl;
         // cout << "Hops Received: " << hops << endl;
         hops--;
         string order = getOrder(recvdata);
@@ -283,13 +287,15 @@ int main(int argc, char *argv[]) {
 
           int random = rand() % 2;
           if (random == 1) {
-            send(neigh_fd, message, strlen(message), 0);
+
             cout << "Sending potato to " << ((player_id + 1) % player_num)
                  << endl;
+            send(neigh_fd, message, strlen(message), 0);
           } else {
-            send(client_fd, message, strlen(message), 0);
+
             cout << "Sending potato to "
                  << ((player_id + player_num - 1) % player_num) << endl;
+            send(client_fd, message, strlen(message), 0);
           }
         }
         // cout << "Send Success when hops = " << (hops + 1) << endl;

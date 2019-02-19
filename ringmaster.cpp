@@ -13,6 +13,7 @@ int main(int argc, char *argv[]) {
   int ret;
   int player_num = atoi(argv[2]);
   int hops = atoi(argv[3]);
+  int count_server = 0;
   int count_ready = 0;
   struct addrinfo host_info;
   struct addrinfo *host_info_list;
@@ -104,6 +105,10 @@ int main(int argc, char *argv[]) {
         // cout << "Receive: " << buf << endl;
         // cout << "> Final Player Opens the server: " << endl;
         // cout << "-------------CONNECT PLAYERS----------------" << endl;
+        /*count_server++;
+        if (count_server != player_num)
+        continue;*/
+        usleep(500000);
 
         string connect_message = buildConnect(players[1]);
         const char *message = connect_message.c_str();
@@ -122,6 +127,13 @@ int main(int argc, char *argv[]) {
           send(players[count_ready].client_fd, message, strlen(message), 0);
         } else {
           // cout << "-------------GAME START----------------" << endl;
+          if (hops == 0) {
+            for (int i = 0; i < player_num; i++) {
+              const char *message = "CLOSE:";
+              send(players[i].client_fd, message, strlen(message), 0);
+            }
+            break;
+          }
           srand((unsigned int)time(NULL) + player_num);
           int random = rand() % player_num;
           const char *message = buildPotato(hops).c_str();
@@ -147,7 +159,7 @@ int main(int argc, char *argv[]) {
     // sleep(3);
   }
 
-  sleep(1);
+  usleep(300000);
   freeaddrinfo(host_info_list);
   // cout << "-------------CLOSE SERVER SOCKET----------------" << endl;
   close(server_fd);
