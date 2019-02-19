@@ -15,12 +15,71 @@
 
 using namespace std;
 
-void checkArgc(int argc, char *argv[]) {
-  if (argc < 3) {
-    cout << "Syntax: client <hostname>\n" << endl;
+bool is_digits(const std::string &str) {
+  return str.find_first_not_of("0123456789") == std::string::npos;
+}
+
+void checkPort(const string &port) {
+  if (is_digits(port) == false) {
+    cerr << "Error: Please input correct port number" << endl;
+    exit(EXIT_FAILURE);
+  }
+  const char *port_temp = port.c_str();
+  int port_digit = atoi(port_temp);
+  if (port_digit < 0 || port_digit > 65535) {
+    cerr << "Error: Please input correct port number: 0~65535" << endl;
+    exit(EXIT_FAILURE);
+  }
+}
+
+void checkPlayerNum(const string &player_num_str) {
+  if (is_digits(player_num_str) == false) {
+    cerr << "Error: Please input correct player number" << endl;
+    exit(EXIT_FAILURE);
+  }
+  const char *player_num_temp = player_num_str.c_str();
+  int player_num = atoi(player_num_temp);
+  if (player_num < 2 || player_num > 1024) {
+    cerr << "Error: Please input correct player number: 0~1024" << endl;
+    exit(EXIT_FAILURE);
+  }
+}
+
+void checkHopsNum(const string &hops_num_str) {
+  if (is_digits(hops_num_str) == false) {
+    cerr << "Error: Please input correct hops number" << endl;
+    exit(EXIT_FAILURE);
+  }
+  const char *hops_num_temp = hops_num_str.c_str();
+  int hops_num = atoi(hops_num_temp);
+  if (hops_num < 0 || hops_num > 512) {
+    cerr << "Error: Please input correct hops number: 0~512" << endl;
+    exit(EXIT_FAILURE);
+  }
+}
+
+void checkRingArgc(int argc, char *argv[]) {
+  if (argc < 4) {
+    cout << "Syntax: ringmaster <port_num> <num_player> <num_hops>\n" << endl;
     exit(EXIT_FAILURE);
   }
   /*Check Number*/
+  string port_str = string(argv[1]);
+  checkPort(port_str);
+  string player_num_str = string(argv[2]);
+  checkPlayerNum(player_num_str);
+  string hops_str = string(argv[3]);
+  checkHopsNum(hops_str);
+}
+
+void checkPlayerArgc(int argc, char *argv[]) {
+  if (argc < 3) {
+    cout << "Syntax: ringmaster <machine_name> <port_num> \n" << endl;
+    exit(EXIT_FAILURE);
+  }
+  /*Check Number*/
+  string port_str = string(argv[2]);
+  checkPort(port_str);
 }
 
 void checkHostInfo(int status, const char *hostname, const char *port) {
@@ -76,8 +135,9 @@ void checkReceive(int status) {
     cerr << "Error: cannot receive data" << endl;
     exit(EXIT_FAILURE);
   } else if (status == 0) {
-    cerr << "Error: Client has been closed" << endl;
-    exit(EXIT_FAILURE);
+    return;
+    // cerr << "Error: Client has been closed" << endl;
+    // exit(EXIT_FAILURE);
   }
 }
 
@@ -98,8 +158,8 @@ void checkCreateSucess(int player_num, size_t players) {
 string getClientIP(struct sockaddr_storage socket_addr) {
   struct sockaddr_in *temp = (struct sockaddr_in *)&socket_addr;
   struct in_addr in = temp->sin_addr;
-  char str[INET_ADDRSTRLEN]; // INET_ADDRSTRLEN这个宏系统默认定义 16
-  //成功的话此时IP地址保存在str字符串中。
+  char str[INET_ADDRSTRLEN];
+
   inet_ntop(AF_INET, &in, str, sizeof(str));
   return string(str);
 }
@@ -180,8 +240,9 @@ string rebuildPotato(string order, int player_id) {
 }
 
 string rebuildPotato(int hops, string order, int player_id) {
-  cout << "Inside REBUILD: hops " << hops << "order " << order << "player_id "
-       << player_id << endl;
+  // cout << "Inside REBUILD: hops " << hops << "order " << order << "player_id
+  // "
+  // << player_id << endl;
   stringstream ss;
   ss << "POTATO:";
   ss << hops;
