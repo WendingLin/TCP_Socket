@@ -5,6 +5,7 @@ using namespace std;
 #define BUF_SIZE 4096
 
 int main(int argc, char *argv[]) {
+  checkRingArgc(argc, argv);
   int status;
   int server_fd;
   fd_set rfds;
@@ -38,11 +39,15 @@ int main(int argc, char *argv[]) {
 
   status = listen(server_fd, 100);
   checkIfListen(status, hostname, port);
+
+  cout << "Potato Ringmaster" << endl;
+  cout << "Players = " << player_num << endl;
+  cout << "Hops = " << hops << endl;
   //
-  cout << "-------------CREATE PLAYERS----------------" << endl;
+  // cout << "-------------CREATE PLAYERS----------------" << endl;
   /* CREATE PLAYER & SEND INFO TO PLAYER */
   for (int i = 0; i < player_num; i++) {
-    cout << "Waiting for player connection on port" << port << endl;
+    // cout << "Waiting for player connection on port " << port << endl;
     struct sockaddr_storage socket_addr;
     socklen_t socket_addr_len = sizeof(socket_addr);
     int client_fd;
@@ -54,9 +59,9 @@ int main(int argc, char *argv[]) {
     int client_port = getClientPort(socket_addr);
 
     int player_seq = createPlayer(players, client_fd, client_ip, client_port);
-    cout << "Seq: " << player_seq << " FD: " << client_fd
-         << " IP: " << client_ip << " Port: " << client_port << endl;
-    cout << "> SEND PLAYERS INFO" << endl;
+    // cout << "Seq: " << player_seq << " FD: " << client_fd
+    //<< " IP: " << client_ip << " Port: " << client_port << endl;
+    // cout << "> SEND PLAYERS INFO" << endl;
     stringstream player_info;
     player_info << "PLAYER:";
     player_info << i;
@@ -96,9 +101,9 @@ int main(int argc, char *argv[]) {
       checkReceive(status);
       string header = getHeader(string(buf));
       if (header == "READY_SERVER") {
-        cout << "Receive: " << buf << endl;
-        cout << "> Final Player Opens the server: " << endl;
-        cout << "-------------CONNECT PLAYERS----------------" << endl;
+        // cout << "Receive: " << buf << endl;
+        // cout << "> Final Player Opens the server: " << endl;
+        // cout << "-------------CONNECT PLAYERS----------------" << endl;
 
         string connect_message = buildConnect(players[1]);
         const char *message = connect_message.c_str();
@@ -106,7 +111,7 @@ int main(int argc, char *argv[]) {
 
       } else if (header == "READY_NEIGHBOUR") {
 
-        cout << "Player " << count_ready << " Ready" << endl;
+        cout << "Player " << count_ready << " is ready to play" << endl;
         count_ready++;
         if (count_ready != player_num) {
 
@@ -116,16 +121,17 @@ int main(int argc, char *argv[]) {
 
           send(players[count_ready].client_fd, message, strlen(message), 0);
         } else {
-          cout << "-------------GAME START----------------" << endl;
+          // cout << "-------------GAME START----------------" << endl;
           srand((unsigned int)time(NULL) + player_num);
           int random = rand() % player_num;
-
           const char *message = buildPotato(hops).c_str();
+          cout << "Ready to start the game, sending potato to player " << random
+               << endl;
           send(players[random].client_fd, message, strlen(message), 0);
         }
 
       } else if (header == "POTATO") {
-        cout << "-------------GAME ENDS----------------" << endl;
+        // cout << "-------------GAME ENDS----------------" << endl;
         cout << "Trace of potato:" << endl;
         splitPotato(string(buf));
         for (int i = 0; i < player_num; i++) {
@@ -143,7 +149,7 @@ int main(int argc, char *argv[]) {
 
   sleep(1);
   freeaddrinfo(host_info_list);
-  cout << "-------------CLOSE SERVER SOCKET----------------" << endl;
+  // cout << "-------------CLOSE SERVER SOCKET----------------" << endl;
   close(server_fd);
   // cout << "Player numbers: " << players.size() << endl;
   return 0;

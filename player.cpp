@@ -5,6 +5,7 @@ using namespace std;
 #define BUF_SIZE 4096
 
 int main(int argc, char *argv[]) {
+  checkPlayerArgc(argc, argv);
   int status;
   int ring_fd;
   int neigh_fd = -1;
@@ -24,12 +25,7 @@ int main(int argc, char *argv[]) {
   struct addrinfo ring_host_info;
   struct addrinfo *ring_host_info_list;
   const char *ring_hostname = argv[1];
-  const char *ring_port = "23333";
-
-  if (argc < 2) {
-    cout << "Syntax: client <hostname>\n" << endl;
-    return 1;
-  }
+  const char *ring_port = argv[2];
 
   memset(&ring_host_info, 0, sizeof(ring_host_info));
   ring_host_info.ai_family = AF_UNSPEC;
@@ -43,8 +39,9 @@ int main(int argc, char *argv[]) {
       socket(ring_host_info_list->ai_family, ring_host_info_list->ai_socktype,
              ring_host_info_list->ai_protocol);
   checkCreateServerSocket(ring_fd, ring_hostname, ring_port);
-  cout << "Connecting to " << ring_hostname << " on port " << ring_port << "..."
-       << endl;
+  // cout << "Connecting to " << ring_hostname << " on port " << ring_port <<
+  // "..."
+  //<< endl;
   status = connect(ring_fd, ring_host_info_list->ai_addr,
                    ring_host_info_list->ai_addrlen);
   checkIfConnect(status, ring_hostname, ring_port);
@@ -87,23 +84,27 @@ int main(int argc, char *argv[]) {
       char buf[BUF_SIZE];
       memset(buf, 0, BUF_SIZE);
       int status = recv(ring_fd, buf, BUF_SIZE, 0);
+      if (status == 0)
+        break;
       checkReceive(status);
       string recvdata = string(buf);
-      cout << "Receive: " << recvdata << endl;
+      // cout << "Receive: " << recvdata << endl;
       string header = getHeader(recvdata);
       if (header == "PLAYER") {
-        cout << "-------------GET ID----------------" << endl;
+        // cout << "-------------GET ID----------------" << endl;
 
         player_id = atoi(getPlayerID(recvdata).c_str());
         player_num = atoi(getPlayerNum(recvdata).c_str());
-        cout << "player num is" << player_num << endl;
-        cout << "-------------OPEN SERVER----------------" << endl;
+        cout << "Connected as player " << player_id << " out of " << player_num
+             << " total players" << endl;
+        // cout << "-------------OPEN SERVER----------------" << endl;
         /* Player-Player as Server */
         real_port = basic_port + player_id;
         stringstream ss;
         ss << real_port;
         const char *server_port = ss.str().c_str();
 
+        // cout << "Server Port is " << server_port << endl;
         memset(&server_host_info, 0, sizeof(server_host_info));
 
         server_host_info.ai_family = AF_UNSPEC;
@@ -128,14 +129,14 @@ int main(int argc, char *argv[]) {
 
         status = listen(server_fd, 10);
         checkIfListen(status, server_hostname, server_port);
-        cout << "Waiting for connection on port" << server_port << endl;
-        cout << "-------------OPEN SERVER SUCCESS----------------" << endl;
+        // cout << "Waiting for connection on port" << server_port << endl;
+        // cout << "-------------OPEN SERVER SUCCESS----------------" << endl;
         if (player_id + 1 == player_num) {
           const char *message = "READY_SERVER:";
           send(ring_fd, message, strlen(message), 0);
         }
       } else if (header == "CONNECT") {
-        cout << "-------------CONNECT NEIGHBOUR----------------" << endl;
+        // cout << "-------------CONNECT NEIGHBOUR----------------" << endl;
         /* Player-Player as Client */
 
         int cal_neigh_port = basic_port + (player_id + 1) % player_num;
@@ -157,22 +158,28 @@ int main(int argc, char *argv[]) {
                           neigh_host_info_list->ai_socktype,
                           neigh_host_info_list->ai_protocol);
         checkCreateClientSocket(neigh_fd);
-        cout << "Connecting to " << neigh_hostname << " on port " << neigh_port
-             << "..." << endl;
+        // cout << "Connecting to " << neigh_hostname << " on port " <<
+        // neigh_port
+        // << "..." << endl;
         status = connect(neigh_fd, neigh_host_info_list->ai_addr,
                          neigh_host_info_list->ai_addrlen);
         checkIfConnect(status, neigh_hostname, neigh_port);
-        cout << "RING FD: " << ring_fd << endl;
-        cout << "SERVER FD: " << server_fd << endl;
-        cout << "NEIGH FD: " << neigh_fd << endl;
+        // cout << "RING FD: " << ring_fd << endl;
+        // cout << "SERVER FD: " << server_fd << endl;
+        // cout << "NEIGH FD: " << neigh_fd << endl;
 
         // cout << "LOCAL PORT: " << real_port << endl;
         // cout << "Neighbour PORT: " << neigh_port << endl;
 
       } else if (header == "POTATO") {
         int hops = atoi(getHops(recvdata).c_str());
+        if (hops == 0) {
+          const char *message = "POTATO:";
+          send(ring_fd, message, strlen(message), 0);
+          continue;
+        }
         cout << "Player <" << player_id << "> get the potato" << endl;
-        cout << "Hops Received: " << hops << endl;
+        // cout << "Hops Received: " << hops << endl;
         hops--;
         string order = getOrder(recvdata);
 
@@ -184,22 +191,27 @@ int main(int argc, char *argv[]) {
         } else {
           string msgstring = rebuildPotato(hops, order, player_id);
           const char *message = msgstring.c_str();
-          cout << recvdata << endl;
-          cout << message << endl;
+          // cout << recvdata << endl;
+          // cout << message << endl;
 
           int random = rand() % 2;
-          if (random == 1)
+          if (random == 1) {
             send(neigh_fd, message, strlen(message), 0);
-          else
+            cout << "Sending potato to " << ((player_id + 1) % player_num)
+                 << endl;
+          } else {
             send(client_fd, message, strlen(message), 0);
+            cout << "Sending potato to "
+                 << ((player_id + player_num - 1) % player_num) << endl;
+          }
         }
-        cout << "Send Success when hops = " << (hops + 1) << endl;
-        cout << endl << endl << endl;
+        // cout << "Send Success when hops = " << (hops + 1) << endl;
+        // cout << endl << endl << endl;
         continue;
       } else if (header == "CLOSE") {
-        cout << "-------------GAME ENDS----------------" << endl;
-        cout << "-------------DISCONNECT----------------" << endl;
-        cout << "-------------CLOSE SERVER----------------" << endl;
+        // cout << "-------------GAME ENDS----------------" << endl;
+        // cout << "-------------DISCONNECT----------------" << endl;
+        // cout << "-------------CLOSE SERVER----------------" << endl;
         break;
       }
     }
@@ -209,14 +221,16 @@ int main(int argc, char *argv[]) {
       memset(buf, 0, BUF_SIZE);
       // cout << "Inside NEIGH recv" << endl;
       int status = recv(neigh_fd, buf, BUF_SIZE, 0);
+      if (status == 0)
+        break;
       checkReceive(status);
       string recvdata = string(buf);
-      cout << "Neigh Receive: " << recvdata << endl;
+      // cout << "Neigh Receive: " << recvdata << endl;
       string header = getHeader(recvdata);
       if (header == "POTATO") {
         int hops = atoi(getHops(recvdata).c_str());
         cout << "Player <" << player_id << "> get the potato" << endl;
-        cout << "Hops Received: " << hops << endl;
+        // cout << "Hops Received: " << hops << endl;
         hops--;
         string order = getOrder(recvdata);
         const char *message;
@@ -228,27 +242,33 @@ int main(int argc, char *argv[]) {
         } else {
           string msgstring = rebuildPotato(hops, order, player_id);
           message = msgstring.c_str();
-          cout << message << endl;
 
           int random = rand() % 2;
-          if (random == 1)
+          if (random == 1) {
             send(neigh_fd, message, strlen(message), 0);
-          else
+            cout << "Sending potato to " << ((player_id + 1) % player_num)
+                 << endl;
+          } else {
             send(client_fd, message, strlen(message), 0);
+            cout << "Sending potato to "
+                 << ((player_id + player_num - 1) % player_num) << endl;
+          }
         }
       }
     } else if (FD_ISSET(client_fd, &rfds)) {
       char buf[BUF_SIZE];
       memset(buf, 0, BUF_SIZE);
       int status = recv(client_fd, buf, BUF_SIZE, 0);
+      if (status == 0)
+        break;
       checkReceive(status);
       string recvdata = string(buf);
-      cout << "Client Receive: " << recvdata << endl;
+      // cout << "Client Receive: " << recvdata << endl;
       string header = getHeader(recvdata);
       if (header == "POTATO") {
         int hops = atoi(getHops(recvdata).c_str());
         cout << "Player <" << player_id << "> get the potato" << endl;
-        cout << "Hops Received: " << hops << endl;
+        // cout << "Hops Received: " << hops << endl;
         hops--;
         string order = getOrder(recvdata);
 
@@ -260,17 +280,20 @@ int main(int argc, char *argv[]) {
         } else {
           string msgstring = rebuildPotato(hops, order, player_id);
           const char *message = msgstring.c_str();
-          cout << recvdata << endl;
-          cout << message << endl;
 
           int random = rand() % 2;
-          if (random == 1)
+          if (random == 1) {
             send(neigh_fd, message, strlen(message), 0);
-          else
+            cout << "Sending potato to " << ((player_id + 1) % player_num)
+                 << endl;
+          } else {
             send(client_fd, message, strlen(message), 0);
+            cout << "Sending potato to "
+                 << ((player_id + player_num - 1) % player_num) << endl;
+          }
         }
-        cout << "Send Success when hops = " << (hops + 1) << endl;
-        cout << endl << endl << endl;
+        // cout << "Send Success when hops = " << (hops + 1) << endl;
+        // cout << endl << endl << endl;
         continue;
       }
     } else if (FD_ISSET(server_fd, &rfds)) {
@@ -283,17 +306,18 @@ int main(int argc, char *argv[]) {
 
       string client_ip = getClientIP(socket_addr);
       int client_port = getClientPort(socket_addr);
-      cout << "NEIGH2 FD: " << client_fd << endl;
-      cout << " FD: " << client_fd << " IP: " << client_ip
-           << " Port: " << client_port << endl;
+      // cout << "NEIGH2 FD: " << client_fd << endl;
+      // cout << " FD: " << client_fd << " IP: " << client_ip
+      // << " Port: " << client_port << endl;
 
       // const char *msg = "HELLO！！";
       // send(client_fd, msg, strlen(msg), 0);
-      cout << "After first send" << endl;
+
       const char *message = "READY_NEIGHBOUR:";
       send(ring_fd, message, strlen(message), 0);
 
-      cout << "-------------CONNECT NEIGHBOUR SUCCESS----------------" << endl;
+      // cout << "-------------CONNECT NEIGHBOUR SUCCESS----------------" <<
+      // endl;
 
       continue;
     } else
