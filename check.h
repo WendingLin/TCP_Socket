@@ -74,7 +74,7 @@ void checkRingArgc(int argc, char *argv[]) {
 
 void checkPlayerArgc(int argc, char *argv[]) {
   if (argc < 3) {
-    cout << "Syntax: ringmaster <machine_name> <port_num> \n" << endl;
+    cout << "Syntax: player <machine_name> <port_num> \n" << endl;
     exit(EXIT_FAILURE);
   }
   /*Check Number*/
@@ -109,6 +109,7 @@ void checkIfBind(int status, const char *hostname, const char *port) {
 
 void checkIfConnect(int status, const char *hostname, const char *port) {
   if (status == -1) {
+    printf("Oh dear, something went wrong with  %s\n", strerror(errno));
     cerr << "Error: cannot connect to socket" << endl;
     cerr << "  (" << hostname << "," << port << ")" << endl;
     exit(EXIT_FAILURE);
@@ -143,7 +144,7 @@ void checkReceive(int status) {
 
 void checkCreateClientSocket(int socket_fd) {
   if (socket_fd == -1) {
-    printf("Oh dear, something went wrong with read()! %s\n", strerror(errno));
+
     cerr << "Error: cannot accept connection on socket" << endl;
     exit(EXIT_FAILURE);
   } // if
